@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Typing Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0f0f0f;
+  color: #eaeaea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 800px;
+  max-width: 95%;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+#text {
+  background: #181818;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 22px;
+  line-height: 1.6;
+  user-select: none;
+}
+
+.correct {
+  color: #4caf50;
+}
+
+.incorrect {
+  color: #f44336;
+}
+
+.current {
+  border-bottom: 2px solid #eaeaea;
+}
+
+input {
+  opacity: 0;
+  position: absolute;
+}
+
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #2a2a2a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3a3a3a;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="stats">
+    <div>WPM: <span id="wpm">0</span></div>
+    <div>Accuracy: <span id="accuracy">100</span>%</div>
+    <div>Time: <span id="time">60</span>s</div>
+  </div>
+
+  <div id="text"></div>
+  <input id="input" autofocus>
+  <button onclick="resetTest()">Restart</button>
+</div>
+
+<script>
+const words = [
+  "the","quick","brown","fox","jumps","over","lazy","dog",
+  "javascript","typing","keyboard","monitor","github","code",
+  "website","developer","speed","accuracy","practice","learn"
+];
+
+const textEl = document.getElementById("text");
+const input = document.getElementById("input");
+const wpmEl = document.getElementById("wpm");
+const accEl = document.getElementById("accuracy");
+const timeEl = document.getElementById("time");
+
+let time = 60;
+let timer = null;
+let charIndex = 0;
+let correctChars = 0;
+let totalTyped = 0;
+
+function generateText() {
+  textEl.innerHTML = "";
+  charIndex = 0;
+  correctChars = 0;
+  totalTyped = 0;
+
+  const text = Array.from({ length: 40 }, () =>
+    words[Math.floor(Math.random() * words.length)]
+  ).join(" ");
+
+  [...text].forEach((char, i) => {
+    const span = document.createElement("span");
+    span.innerText = char;
+    if (i === 0) span.classList.add("current");
+    textEl.appendChild(span);
+  });
+}
+
+function startTimer() {
+  if (timer) return;
+  timer = setInterval(() => {
+    time--;
+    timeEl.innerText = time;
+    if (time <= 0) endTest();
+  }, 1000);
+}
+
+function endTest() {
+  clearInterval(timer);
+  input.disabled = true;
+}
+
+input.addEventListener("input", () => {
+  startTimer();
+  const chars = textEl.querySelectorAll("span");
+  const typedChar = input.value.slice(-1);
+  const currentChar = chars[charIndex];
+
+  if (!currentChar) return;
+
+  totalTyped++;
+
+  if (typedChar === currentChar.innerText) {
+    currentChar.classList.add("correct");
+    correctChars++;
+  } else {
+    currentChar.classList.add("incorrect");
+  }
+
+  currentChar.classList.remove("current");
+  charIndex++;
+
+  if (chars[charIndex]) {
+    chars[charIndex].classList.add("current");
+  }
+
+  const wpm = Math.round((correctChars / 5) / ((60 - time) / 60 || 1));
+  const accuracy = Math.round((correctChars / totalTyped) * 100);
+
+  wpmEl.innerText = wpm;
+  accEl.innerText = accuracy;
+});
+
+function resetTest() {
+  clearInterval(timer);
+  timer = null;
+  time = 60;
+  timeEl.innerText = 60;
+  wpmEl.innerText = 0;
+  accEl.innerText = 100;
+  input.value = "";
+  input.disabled = false;
+  generateText();
+}
+
+generateText();
+</script>
+</body>
+</html>
