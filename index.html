@@ -2,28 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Typing Test Pro</title>
+<title>Typing Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root {
-  --bg: #0f0f0f;
-  --panel: #181818;
-  --text: #eaeaea;
-  --good: #4caf50;
-  --bad: #f44336;
-  --accent: #9c27b0;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: Arial, sans-serif;
+  background: #0f0f0f;
+  color: #eaeaea;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -38,12 +25,7 @@ body {
 .top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.stats span {
-  margin-right: 20px;
+  margin-bottom: 14px;
 }
 
 select, button {
@@ -56,31 +38,30 @@ select, button {
 }
 
 #text {
-  background: var(--panel);
-  padding: 24px;
+  background: #181818;
+  padding: 22px;
   border-radius: 12px;
   font-size: 22px;
   line-height: 1.7;
-  user-select: none;
   min-height: 140px;
-  transition: box-shadow 0.2s;
+  user-select: none;
 }
 
 #text.error {
-  box-shadow: 0 0 12px var(--bad);
+  box-shadow: 0 0 10px #f44336;
 }
 
 .correct {
-  color: var(--good);
+  color: #4caf50;
   animation: pop 0.15s ease;
 }
 
 .incorrect {
-  color: var(--bad);
+  color: #f44336;
 }
 
 .current {
-  border-bottom: 2px solid var(--accent);
+  border-bottom: 2px solid #9c27b0;
   animation: blink 1s infinite;
 }
 
@@ -89,9 +70,7 @@ select, button {
 }
 
 @keyframes pop {
-  0% { transform: scale(1); }
   50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
 }
 
 input {
@@ -104,10 +83,10 @@ input {
 <body>
 <div class="container">
   <div class="top">
-    <div class="stats">
-      <span>WPM: <b id="wpm">0</b></span>
-      <span>Accuracy: <b id="acc">100</b>%</span>
-      <span>Time: <b id="time">60</b>s</span>
+    <div>
+      WPM: <b id="wpm">0</b>
+      &nbsp; Accuracy: <b id="acc">100</b>%
+      &nbsp; Time: <b id="time">60</b>s
     </div>
 
     <div>
@@ -131,9 +110,9 @@ input {
 
 <script>
 const words = [
-  "typing","speed","accuracy","keyboard","javascript","github",
-  "practice","developer","function","variable","interface",
-  "animation","performance","design","logic","syntax"
+  "that","what","when","why","how","how","mine","there","their","here",
+  "for","and","an","a","have","bye","buy","by","build","book",
+  "fox","box","blob","animation","quick","lazy","the"
 ];
 
 const textEl = document.getElementById("text");
@@ -146,21 +125,16 @@ const timeSelect = document.getElementById("timeSelect");
 const keySound = document.getElementById("keySound");
 const errorSound = document.getElementById("errorSound");
 
-let time;
-let timer = null;
-let index = 0;
-let correct = 0;
-let typed = 0;
-let errorStreak = 0;
-let locked = false;
+let index, correct, typed, errorStreak, locked;
+let time, initialTime, timer;
 
 function generateText() {
   textEl.innerHTML = "";
   index = correct = typed = errorStreak = 0;
   locked = false;
 
-  const text = Array.from({ length: 45 },
-    () => words[Math.floor(Math.random() * words.length)]
+  const text = Array.from({ length: 50 }, () =>
+    words[Math.floor(Math.random() * words.length)]
   ).join(" ");
 
   [...text].forEach((c, i) => {
@@ -232,14 +206,10 @@ function moveForward() {
 }
 
 function updateStats() {
-  const elapsed = Math.max(1, (initialTime - time));
-  const wpm = Math.round((correct / 5) / (elapsed / 60));
-  const acc = Math.round((correct / typed) * 100);
-  wpmEl.textContent = wpm;
-  accEl.textContent = acc || 100;
+  const elapsed = Math.max(1, initialTime - time);
+  wpmEl.textContent = Math.round((correct / 5) / (elapsed / 60));
+  accEl.textContent = Math.round((correct / typed) * 100) || 100;
 }
-
-let initialTime = 60;
 
 function resetTest() {
   clearInterval(timer);
